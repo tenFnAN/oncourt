@@ -12,5 +12,6 @@ Encoding: UTF-8
 LazyData: false
 Imports:
   dplyr,
-  RODBC
-RoxygenNote: 7.1.1
+  RODBC,
+  lubridate
+RoxygenNote: 7.2.3

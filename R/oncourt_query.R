@@ -238,7 +238,8 @@ query_oncourt_playerdata = function(type, date_min = as.Date(Sys.time()) - 365*4
     dplyr::mutate(
       type= type,
       ID2 = ifelse(is.na(ID2), idPlayer2, ID2),
-      ID1 = ifelse(is.na(ID1), idPlayer, ID1),
+      ID1 = ifelse(is.na(ID1), idPlayer,  ID1),
+      DATE_G    = as.Date(DATE_G) + lubridate::days(1),
       MT        = as.character(MT),
       TIER_T    = trimws(TIER_T),
       TIME_G    = as.numeric(format(as.POSIXct(MT), format = "%H"))*60 + as.numeric(format(as.POSIXct(MT), format = "%M")) ) %>%
@@ -257,7 +258,7 @@ query_oncourt_playerdata = function(type, date_min = as.Date(Sys.time()) - 365*4
 #' @param date_min lower bound of date
 #' @param date_max upper bound of date, default today's date
 #' @param con  connector to database
-#' @return data frame with historical data of particual players
+#' @return data frame with historical data
 #' * *type*     - atp or wta
 #' * *type2*    - single or double
 #' * etc...
@@ -358,7 +359,8 @@ query_oncourt_matches = function(type,  date_min = as.Date(Sys.time()) - 7*2, da
       TIER_T= trimws(TIER_T),
       ID2 = ifelse(is.na(ID2), idPlayer2, ID2),
       ID1 = ifelse(is.na(ID1), idPlayer, ID1),
-      TIME_G    = as.numeric(format(as.POSIXct(MT), format = "%H"))*60 + as.numeric(format(as.POSIXct(MT), format = "%M")) ) %>%
+      DATE_G = as.Date(DATE_G) + lubridate::days(1),
+      TIME_G = as.numeric(format(as.POSIXct(MT), format = "%H"))*60 + as.numeric(format(as.POSIXct(MT), format = "%M")) ) %>%
     dplyr::select(-one_of(c('ID_T', 'ID_R', 'idPlayer2', 'MT'))) %>%
     dplyr::select(type, type2, everything())
 

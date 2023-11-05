@@ -21,7 +21,7 @@ query_oncourt_matches(
 \item{con}{connector to database}
 }
 \value{
-data frame with historical data of particual players
+data frame with historical data
 \itemize{
 \item \emph{type}     - atp or wta
 \item \emph{type2}    - single or double
