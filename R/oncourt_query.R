@@ -112,6 +112,129 @@ query_oncourt_schedule = function(type, con = cn_access){
 
 }
 
+#' Get schedule historical
+#'
+#' Get historical schedule of single & double matches
+#' @md
+#' @param type wta or atp
+#' @param con  connector to database
+#' @return data frame with schedule data
+#' * *type*     - atp or wta
+#' * *type2*    - single or double
+#' * *NAME_T*   - tournament
+#' * *NAME_R*   - round
+#' * *NAME_C*   - surface
+#' * *COUNTRY_T*  - country
+#' * etc...
+#' @examples
+# df_schedule = oncourt::query_oncourt_schedule_historical(type = 'wta', date_min = '2023-12-26', date_max = '2023-12-26')
+query_oncourt_schedule_historical = function(type, date_min, date_max, con = cn_access){
+
+  sqlQuery(con, paste(" SELECT
+                                    P1, ID1 as id_P1, P2, ID2 as id_P2, idPlayer, idPlayer2, Country_P1,  Country_P2, DATE_G, RESULT_G, score,
+                                    NAME_R,NAME_T, PRIZE_T, NAME_C, RANK_T, LATITUDE_T, LONGITUDE_T,
+                                    COUNTRY_T, PLAY_LEFT_P1,PLAY_LEFT_P2,
+                                    DATE_Birth_P1, DATE_Birth_P2,
+                                    seed_type.SEEDING AS SEED_P1, seed_type_1.SEEDING AS SEED_P2,
+                                    odds_type.K1 as ODDS_P1, odds_type.K2 as ODDS_P2, odds_type.ID_B_O as ODDS_B
+
+                                    FROM odds_type RIGHT JOIN (seed_type AS seed_type_1 RIGHT JOIN (seed_type RIGHT JOIN (SELECT podzap1.*,
+                                    s.ID1, s.ID2 from ( SELECT
+                                    pl1.ID_P as idPlayer,
+                                    pl2.ID_P as idPlayer2,
+                                    pl1.NAME_P AS P1,
+                                    pl2.NAME_P AS P2,
+                                    g.RESULT_G,
+                                    g.DATE_G,
+                                    'win' AS score,
+                                    pl1.COUNTRY_P as Country_P1,
+                                    pl2.COUNTRY_P as Country_P2,
+                                    r.NAME_R,
+                                    c.NAME_C,
+                                    t.NAME_T,
+                                    t.TIER_T,
+                                    [t].[ID_T],
+                                    [r].[ID_R] ,
+                                    t.RANK_T+1 as RANK_T,
+                                    t.PRIZE_T,
+                                    t.COUNTRY_T,
+                                    t.LATITUDE_T, t.LONGITUDE_T,
+                                    cat.CAT1 as PLAY_LEFT_P2,
+                                    cat_P1.CAT1 as PLAY_LEFT_P1,
+                                    pl1.DATE_P   AS DATE_Birth_P1,
+                                    pl2.DATE_P AS DATE_Birth_P2
+
+                                    FROM
+                                    players_type AS pl2, rounds AS r, tours_type AS t, courts AS c, players_type AS pl1, games_type AS g, categories_type as cat, categories_type as cat_P1
+                                    WHERE ( ((g.ID2_G)=[pl2].[ID_P]) AND ((g.ID_R_G)=[r].[ID_R]) AND (cat.ID_P = pl2.ID_P) AND (cat_P1.ID_P = pl1.ID_P) AND
+                                    ((t.ID_C_T)=[c].[ID_C]) AND ((pl1.ID_P)=[g].[ID1_G])) and t.ID_T = g.ID_T_G ) as podzap1  LEFT JOIN (
+                                    select * from stat_type ) as s ON podzap1.idPlayer = s.ID1 AND podzap1.idPlayer2 = s.ID2  and podzap1.ID_T = s.ID_T and podzap1.ID_R = s.ID_R
+                                    where podzap1.DATE_G is not null and podzap1.DATE_G >= #", date_min, "# and podzap1.DATE_G <= #", date_max, "#
+                                    )  AS podzap2 ON (seed_type.ID_T_S = podzap2.ID_T) AND (seed_type.ID_P_S = podzap2.ID1)) ON (seed_type_1.ID_P_S = podzap2.ID2) AND (seed_type_1.ID_T_S = podzap2.ID_T)) ON
+                                    (odds_type.ID_T_O = podzap2.ID_T) AND (odds_type.ID2_O = podzap2.ID2) AND (odds_type.ID1_O = podzap2.ID1) AND (odds_type.ID_R_O = podzap2.ID_R)
+                                    WHERE (( (odds_type.ID_B_O)=1 or (odds_type.ID_B_O)=2 Or (odds_type.ID_B_O) Is Null))
+                                    UNION
+
+                                    SELECT
+                                    P1, ID1 as id_P1, P2, ID2 as id_P2, idPlayer, idPlayer2, Country_P1,  Country_P2, DATE_G, RESULT_G, score,
+                                    NAME_R,NAME_T, PRIZE_T, NAME_C, RANK_T, LATITUDE_T, LONGITUDE_T,
+                                    COUNTRY_T, PLAY_LEFT_P1,PLAY_LEFT_P2,
+                                    DATE_Birth_P1, DATE_Birth_P2,
+                                    seed_type_1.SEEDING AS SEED_P1, seed_type.SEEDING AS SEED_P2,
+                                    odds_type.K1 as ODDS_P1, odds_type.K2 as ODDS_P2, odds_type.ID_B_O as ODDS_B
+
+                                    FROM odds_type RIGHT JOIN (seed_type AS seed_type_1 RIGHT JOIN (seed_type RIGHT JOIN (SELECT podzap1.*,
+                                    s.ID2 as ID1,         s.ID1 as ID2 from ( SELECT
+                                    pl2.ID_P as idPlayer,
+                                    pl1.ID_P as idPlayer2,
+                                    pl2.NAME_P AS P1,
+                                    pl1.NAME_P AS P2,
+                                    g.RESULT_G,
+                                    g.DATE_G,
+                                    'lost' AS score,
+                                    pl2.COUNTRY_P as Country_P1,
+                                    pl1.COUNTRY_P as Country_P2,
+                                    r.NAME_R,
+                                    c.NAME_C,
+                                    t.NAME_T,
+                                    t.TIER_T,
+                                    [t].[ID_T],
+                                    [r].[ID_R] ,
+                                    t.RANK_T+1 as RANK_T,
+                                    t.PRIZE_T,
+                                    t.COUNTRY_T,
+                                    t.LATITUDE_T, t.LONGITUDE_T,
+                                    cat.CAT1 as PLAY_LEFT_P2,
+                                    cat_P1.CAT1 as PLAY_LEFT_P1,
+                                    pl2.DATE_P AS DATE_Birth_P1,
+                                    pl1.DATE_P   AS DATE_Birth_P2
+
+                                    FROM
+                                    players_type AS pl2, rounds AS r, tours_type AS t, courts AS c, players_type AS pl1, games_type AS g, categories_type as cat, categories_type as cat_P1
+                                    WHERE ( ((g.ID2_G)=[pl2].[ID_P]) AND ((g.ID_R_G)=[r].[ID_R]) AND (cat.ID_P = pl1.ID_P) AND (cat_P1.ID_P = pl2.ID_P) AND
+                                    ((t.ID_C_T)=[c].[ID_C]) AND ((pl1.ID_P)=[g].[ID1_G])) and t.ID_T = g.ID_T_G ) as podzap1  LEFT JOIN (
+                                    select * from stat_type ) as s ON podzap1.idPlayer = s.ID2 AND podzap1.idPlayer2 = s.ID1 and podzap1.ID_T = s.ID_T and podzap1.ID_R = s.ID_R
+                                    where podzap1.DATE_G is not null and podzap1.DATE_G >= #", date_min, "# and podzap1.DATE_G <= #", date_max, "#
+                                    )  AS podzap2 ON (seed_type.ID_T_S = podzap2.ID_T) AND (seed_type.ID_P_S = podzap2.ID2)) ON (seed_type_1.ID_P_S = podzap2.ID1) AND (seed_type_1.ID_T_S = podzap2.ID_T)) ON
+                                    (odds_type.ID_T_O = podzap2.ID_T) AND (odds_type.ID1_O = podzap2.ID1) AND (odds_type.ID2_O = podzap2.ID2) AND (odds_type.ID_R_O = podzap2.ID_R)
+                                    WHERE (( (odds_type.ID_B_O)=1 or (odds_type.ID_B_O)=2 Or (odds_type.ID_B_O) Is Null));
+                                    ",sep = "")  %>%
+             gsub('_type', paste('_', type, sep = ''), . ) )  %>%
+    dplyr::mutate(
+      type  = type,
+      type2 = ifelse(grepl('/', P1), 'double', 'single'),
+      DATE_G= as.Date(DATE_G),
+      id_P2 = ifelse(is.na(id_P2), idPlayer2, id_P2),
+      id_P1 = ifelse(is.na(id_P1), idPlayer,  id_P1),
+      players_tmp  = paste(ifelse(id_P1 < id_P2, P1, P2), ' | ', ifelse(id_P1 < id_P2, P2, P1), ' | ', NAME_T, ' | ', DATE_G) ) %>%
+    dplyr::arrange(players_tmp, desc(ODDS_B)) %>%
+    dplyr::group_by(players_tmp) %>%
+    dplyr::slice(1) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-idPlayer2, -idPlayer, -ODDS_B, -players_tmp) %>%
+    dplyr::select(type, type2, everything())
+
+}
 
 #' Get historical data by individual player
 #'
