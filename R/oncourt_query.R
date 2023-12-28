@@ -345,10 +345,10 @@ query_oncourt_playerdata = function(type, date_min = as.Date(Sys.time()) - 365*4
                                           t.COUNTRY_T,
                                           t.LATITUDE_T, t.LONGITUDE_T,
                                           cat.CAT1 as PLAY_LEFT_P2,
-                                          pl1.DATE_P AS DATE_Birth_P1,
-                                          pl2.DATE_P AS DATE_Birth_P2,
-                                          pl1.COUNTRY_P AS Country_P1,
-                                          pl2.COUNTRY_P AS Country_P2
+                                          pl2.DATE_P AS DATE_Birth_P1,
+                                          pl1.DATE_P AS DATE_Birth_P2,
+                                          pl2.COUNTRY_P AS Country_P1,
+                                          pl1.COUNTRY_P AS Country_P2
 
                                           FROM
                                           players_type AS pl2, rounds AS r, tours_type AS t, courts AS c, players_type AS pl1, games_type AS g, categories_type as cat
@@ -357,7 +357,7 @@ query_oncourt_playerdata = function(type, date_min = as.Date(Sys.time()) - 365*4
                                           select * from stat_type where ID2 IN (", players_id ,") ) as s ON podzap1.idPlayer = s.ID2 AND podzap1.idPlayer2 = s.ID1  and podzap1.ID_T = s.ID_T and podzap1.ID_R = s.ID_R
                                           where podzap1.DATE_G is not null
   ) ORDER BY DATE_G DESC     ",sep = "") %>%
-             gsub('_type', paste('_', type, sep = ''), . ) ) %>%
+                    gsub('_type', paste('_', type, sep = ''), . ) ) %>%
     dplyr::mutate(
       type= type,
       ID2 = ifelse(is.na(ID2), idPlayer2, ID2),
@@ -366,7 +366,7 @@ query_oncourt_playerdata = function(type, date_min = as.Date(Sys.time()) - 365*4
       MT        = as.character(MT),
       TIER_T    = trimws(TIER_T),
       TIME_G    = as.numeric(format(as.POSIXct(MT), format = "%H"))*60 + as.numeric(format(as.POSIXct(MT), format = "%M")) ) %>%
-    dplyr::select(-one_of(c('ID_T', 'ID_R', 'idPlayer2', 'MT'))) %>%
+    dplyr::select(-one_of(c('ID_T', 'ID_R', 'idPlayer', 'idPlayer2', 'MT'))) %>%
     dplyr::select(type, everything())
 
 }
