@@ -364,7 +364,6 @@ query_oncourt_playerdata = function(type, date_min = as.Date(Sys.time()) - 365*4
       ID2 = ifelse(is.na(ID2), idPlayer2, ID2),
       ID1 = ifelse(is.na(ID1), idPlayer,  ID1),
       DATE_G    = as.Date(DATE_G) + lubridate::days(1),
-      MT        = as.character(MT),
       TIER_T    = trimws(TIER_T),
       TIME_G    = as.numeric(format(as.POSIXct(MT), format = "%H"))*60 + as.numeric(format(as.POSIXct(MT), format = "%M")) ) %>%
     dplyr::select(-one_of(c('ID_T', 'ID_R', 'idPlayer', 'idPlayer2', 'MT'))) %>%

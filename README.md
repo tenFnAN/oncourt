@@ -6,3 +6,4 @@ Before start, you must install the OnCourt database and have a database password
 
 To start working with the data, connect to the database using the *connect_oncourt_db* function.
 
+devtools::install_github("tenFnAN/oncourt")
