@@ -65,7 +65,7 @@ query_oncourt_playerranking = function(type, from = 730, con = cn_access){
 query_oncourt_schedule = function(type, con = cn_access){
 
   RODBC::sqlQuery(con, paste("
-                                         SELECT podzap.P1, podzap.idP1 as id_P1, podzap.P2, podzap.idP2 as id_P2, podzap.Country_P1, podzap.Country_P2, podzap.NAME_R, podzap.NAME_T, podzap.PRIZE_T,
+                                         SELECT podzap.P1, podzap.idP1 as id_P1, podzap.P2, podzap.idP2 as id_P2, podzap.Country_P1, podzap.Country_P2, podzap.NAME_R, podzap.TIER_T, podzap.NAME_T, podzap.PRIZE_T,
                                          podzap.NAME_C, podzap.RANK_T, podzap.LATITUDE_T, podzap.LONGITUDE_T, podzap.COUNTRY_T, podzap.PLAY_LEFT_P1, podzap.PLAY_LEFT_P2,
                                          podzap.DATE_Birth_P1, podzap.DATE_Birth_P2 ,seed_type.SEEDING AS SEED_P1, seed_type_1.SEEDING AS SEED_P2,
                                          odds_type.K1 as ODDS_P1, odds_type.K2 as ODDS_P2, odds_type.ID_B_O as ODDS_B, podzap.ITF_ID
@@ -82,6 +82,7 @@ query_oncourt_schedule = function(type, con = cn_access){
                                          players_type_1.ITF_ID ,
                                          rounds.NAME_R,rounds.ID_R,
                                          tours_type.NAME_T,
+                                         tours_type.TIER_T,
                                          tours_type.PRIZE_T,
                                          courts.NAME_C,
                                          tours_type.RANK_T+1 AS RANK_T,
@@ -132,7 +133,7 @@ query_oncourt_schedule_historical = function(type, date_min, date_max, con = cn_
 
   sqlQuery(con, paste(" SELECT
                                     P1, ID1 as id_P1, P2, ID2 as id_P2, idPlayer, idPlayer2, Country_P1,  Country_P2, DATE_G, RESULT_G, score,
-                                    NAME_R,NAME_T, PRIZE_T, NAME_C, RANK_T, LATITUDE_T, LONGITUDE_T,
+                                    NAME_R,TIER_T, NAME_T, PRIZE_T, NAME_C, RANK_T, LATITUDE_T, LONGITUDE_T,
                                     COUNTRY_T, PLAY_LEFT_P1,PLAY_LEFT_P2,
                                     DATE_Birth_P1, DATE_Birth_P2,
                                     seed_type.SEEDING AS SEED_P1, seed_type_1.SEEDING AS SEED_P2,
@@ -177,7 +178,7 @@ query_oncourt_schedule_historical = function(type, date_min, date_max, con = cn_
 
                                     SELECT
                                     P1, ID1 as id_P1, P2, ID2 as id_P2, idPlayer, idPlayer2, Country_P1,  Country_P2, DATE_G, RESULT_G, score,
-                                    NAME_R,NAME_T, PRIZE_T, NAME_C, RANK_T, LATITUDE_T, LONGITUDE_T,
+                                    NAME_R,TIER_T, NAME_T, PRIZE_T, NAME_C, RANK_T, LATITUDE_T, LONGITUDE_T,
                                     COUNTRY_T, PLAY_LEFT_P1,PLAY_LEFT_P2,
                                     DATE_Birth_P1, DATE_Birth_P2,
                                     seed_type_1.SEEDING AS SEED_P1, seed_type.SEEDING AS SEED_P2,
