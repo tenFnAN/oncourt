@@ -449,8 +449,8 @@ query_oncourt_matches = function(type,  date_min = as.Date(Sys.time()) - 7*2, da
                                           s.W2SOF_2 as W2SOF_1, s.W2SOF_1 as W2SOF_2,
                                           s.RPW_2 as RPW_1,     s.RPW_1 as RPW_2,
                                           s.RPWOF_2 as RPWOF_1 ,s.RPWOF_1 as RPWOF_2,
-                                          s.BP_1    as BP_2,    s.BP_2  as BP_1,
-                                          s.BPOF_1  as BPOF_2,  s.BPOF_2 as BPOF_1 from (SELECT
+                                          s.BP_2  as BP_1      ,s.BP_1    as BP_2,
+                                          s.BPOF_2 as BPOF_1   ,s.BPOF_1 as BPOF_2 from (SELECT
                                           pl2.ID_P as idPlayer,
                                           pl1.ID_P as idPlayer2,
                                           pl2.NAME_P AS P1,
