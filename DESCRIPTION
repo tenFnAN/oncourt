@@ -2,9 +2,9 @@ Package: oncourt
 Type: Package
 Title: Querying OnCourt tennis databases
 Version: 0.1.0
-Author: Pawel Sroka
+Author: Pawel S
 Authors@R: c(
-    person("Pawel", "Sroka", , "pawel.sroka0@gmail.com", role = c("aut", "cre")) 
+    person("Pawel", "S", , "pawel.sroka0@gmail.com", role = c("aut", "cre")) 
     )
 Description: easy acces to actutal and historical tennis stats
 License: MIT + file LICENSE
@@ -13,5 +13,5 @@ LazyData: false
 Imports:
   dplyr,
   RODBC,
-  lubridate
+  lubridate 
 RoxygenNote: 7.2.3
