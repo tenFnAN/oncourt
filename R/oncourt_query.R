@@ -65,7 +65,7 @@ query_oncourt_playerranking = function(type, from = 730, con = cn_access){
 query_oncourt_schedule = function(type, con = cn_access){
 
   RODBC::sqlQuery(con, paste("
-                                         SELECT podzap.P1, podzap.idP1 as id_P1, podzap.P2, podzap.idP2 as id_P2, podzap.Country_P1, podzap.Country_P2, podzap.NAME_R, podzap.TIER_T, podzap.NAME_T, podzap.PRIZE_T,
+                                         SELECT podzap.DATE_GAME as DATE_G, Hour(DATE_GAME) as DATE_H, podzap.DRAW, podzap.P1, podzap.idP1 as id_P1, podzap.P2, podzap.idP2 as id_P2, podzap.Country_P1, podzap.Country_P2, podzap.NAME_R, podzap.TIER_T, podzap.NAME_T, podzap.PRIZE_T,
                                          podzap.NAME_C, podzap.RANK_T, podzap.LATITUDE_T, podzap.LONGITUDE_T, podzap.COUNTRY_T, podzap.PLAY_LEFT_P1, podzap.PLAY_LEFT_P2,
                                          podzap.DATE_Birth_P1, podzap.DATE_Birth_P2 ,seed_type.SEEDING AS SEED_P1, seed_type_1.SEEDING AS SEED_P2,
                                          odds_type.K1 as ODDS_P1, odds_type.K2 as ODDS_P2, odds_type.ID_B_O as ODDS_B, podzap.ITF_ID
@@ -81,6 +81,8 @@ query_oncourt_schedule = function(type, con = cn_access){
                                          players_type_1.DATE_P AS DATE_Birth_P2,
                                          players_type_1.ITF_ID ,
                                          rounds.NAME_R,rounds.ID_R,
+                                         today_type.DATE_GAME,
+                                         today_type.DRAW,
                                          tours_type.NAME_T,
                                          tours_type.TIER_T,
                                          tours_type.PRIZE_T,
@@ -95,7 +97,7 @@ query_oncourt_schedule = function(type, con = cn_access){
                                          FROM categories_type AS categories_type_1 INNER JOIN (categories_type INNER JOIN ((((players_type AS players_type_1 INNER JOIN (players_type INNER JOIN today_type ON players_type.ID_P = today_type.ID1) ON players_type_1.ID_P = today_type.ID2)
                                          INNER JOIN rounds ON today_type.ROUND = rounds.ID_R) INNER JOIN tours_type ON today_type.TOUR = tours_type.ID_T)
                                          INNER JOIN courts ON tours_type.ID_C_T = courts.ID_C) ON categories_type.ID_P = players_type.ID_P) ON categories_type_1.ID_P = players_type_1.ID_P
-                                         WHERE (((players_type.NAME_P) Not Like '%Unknown Player%') AND ((players_type_1.NAME_P) Not Like '%Unknown Player%') AND ((today_type.RESULT)='')))
+                                         WHERE (((players_type.NAME_P) Not Like '%Unknown Player%') AND ((players_type_1.NAME_P) Not Like '%Unknown Player%') AND (today_type.RESULT='')))
                                          AS podzap ON (seed_type.ID_P_S = podzap.idP1) AND (seed_type.ID_T_S = podzap.ID_T)) ON (seed_type_1.ID_T_S = podzap.ID_T) AND
                                          (seed_type_1.ID_P_S = podzap.idP2)) ON (odds_type.ID_R_O = podzap.ID_R) AND
                                          (odds_type.ID_T_O = podzap.ID_T) AND (odds_type.ID2_O = podzap.idP2) AND (odds_type.ID1_O = podzap.idP1)
@@ -103,6 +105,7 @@ query_oncourt_schedule = function(type, con = cn_access){
                                          ") %>% gsub('_type', paste('_', type, sep = ''), . ) )  %>%
     dplyr::mutate(type          = type,
                   type2         = ifelse(grepl('/', P1), 'double', 'single'),
+                  DATE_G        = as.Date(DATE_G),
                   players_tmp   = paste(P1, ' | ', P2, ' | ', NAME_T)) %>%
     dplyr::arrange(players_tmp, desc(ODDS_B)) %>%
     dplyr::group_by(players_tmp) %>%
