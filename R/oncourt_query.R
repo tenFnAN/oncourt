@@ -392,7 +392,8 @@ query_oncourt_playerdata = function(type, date_min = as.Date(Sys.time()) - 365*4
 # df_matches = oncourt::query_oncourt_matches(type = 'wta')
 query_oncourt_matches = function(type,  date_min = as.Date(Sys.time()) - 7*2, date_max = as.Date(Sys.time()), con = cn_access){
 
-  RODBC::sqlQuery(con, paste(" SELECT * from (
+  bind_rows(
+    RODBC::sqlQuery(con, paste(" SELECT * from (
 
                                       SELECT podzap1.*,
                                           s.MT,
@@ -435,7 +436,9 @@ query_oncourt_matches = function(type,  date_min = as.Date(Sys.time()) - 7*2, da
                                           ((t.ID_C_T)=[c].[ID_C]) AND ((pl1.ID_P)=[g].[ID1_G])) and t.ID_T = g.ID_T_G and g.DATE_G >= #", date_min, "# and g.DATE_G <= #", date_max, "# ) as podzap1  LEFT JOIN (
                                           select * from stat_type ) as s ON podzap1.idPlayer = s.ID1 AND podzap1.idPlayer2 = s.ID2  and podzap1.ID_T = s.ID_T and podzap1.ID_R = s.ID_R
                                           where podzap1.DATE_G is not null
-                                          UNION
+  ) ORDER BY DATE_G DESC     ",sep = "") %>%
+                      gsub('_type', paste('_', type, sep = ''), . ) ),
+    RODBC::sqlQuery(con, paste(" SELECT * from (
                                           SELECT podzap1.*,
                                           s.MT,
                                           s.ID2 as ID1,         s.ID1 as ID2,
@@ -478,7 +481,8 @@ query_oncourt_matches = function(type,  date_min = as.Date(Sys.time()) - 7*2, da
                                           select * from stat_type ) as s ON podzap1.idPlayer = s.ID2 AND podzap1.idPlayer2 = s.ID1  and podzap1.ID_T = s.ID_T and podzap1.ID_R = s.ID_R
                                           where podzap1.DATE_G is not null
   ) ORDER BY DATE_G DESC     ",sep = "") %>%
-             gsub('_type', paste('_', type, sep = ''), . ) ) %>%
+                      gsub('_type', paste('_', type, sep = ''), . ) )
+  ) %>%
     dplyr::mutate(
       type= type,
       type2= ifelse(grepl('/', P1), 'double', 'single'),
@@ -487,6 +491,7 @@ query_oncourt_matches = function(type,  date_min = as.Date(Sys.time()) - 7*2, da
       ID1 = ifelse(is.na(ID1), idPlayer, ID1),
       DATE_G = as.Date(DATE_G) + lubridate::days(1),
       TIME_G = as.numeric(format(as.POSIXct(MT), format = "%H"))*60 + as.numeric(format(as.POSIXct(MT), format = "%M")) ) %>%
+    dplyr::arrange(P1, desc(DATE_G)) %>%
     dplyr::select(-one_of(c('ID_T', 'ID_R', 'idPlayer2', 'MT'))) %>%
     dplyr::select(type, type2, everything())
 
